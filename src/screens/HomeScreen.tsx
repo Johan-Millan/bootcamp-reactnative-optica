@@ -13,12 +13,22 @@ import {
   View,
 } from 'react-native';
 
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+
 import { Glasses } from '../types';
 import { ItemCard } from '../components/ItemCard';
 import { MOCK_ITEMS } from '../data/mockData';
+import { HomeStackParamList } from '../navigation/HomeStack';
 import { COLORS, SPACING, TYPOGRAPHY } from '../theme';
 
-export function HomeScreen(): React.JSX.Element {
+type HomeScreenProps = NativeStackScreenProps<
+  HomeStackParamList,
+  'Home'
+>;
+
+export function HomeScreen({
+  navigation,
+}: HomeScreenProps): React.JSX.Element {
   const [search, setSearch] = useState('');
 
   const filteredItems = useMemo(() => {
@@ -35,13 +45,22 @@ export function HomeScreen(): React.JSX.Element {
     );
   }, [search]);
 
-  const handleItemPress = useCallback((item: Glasses): void => {
-    console.log('Gafa seleccionada:', item.name);
-  }, []);
+  const handleItemPress = useCallback(
+    (item: Glasses): void => {
+      navigation.navigate('Detail', {
+  id: item.id,
+  name: item.name,
+});
+    },
+    [navigation],
+  );
 
   const renderItem = useCallback(
     ({ item }: { item: Glasses }): React.JSX.Element => (
-      <ItemCard item={item} onPress={handleItemPress} />
+      <ItemCard
+        item={item}
+        onPress={handleItemPress}
+      />
     ),
     [handleItemPress],
   );
@@ -63,7 +82,9 @@ export function HomeScreen(): React.JSX.Element {
   }, []);
 
   const renderSeparator = useCallback(
-    (): React.JSX.Element => <View style={styles.separator} />,
+    (): React.JSX.Element => (
+      <View style={styles.separator} />
+    ),
     [],
   );
 

@@ -1,0 +1,15 @@
+<Stack.Screen
+  name="Home"
+  component={HomeScreen}
+  options={{
+    title: 'Óptica Visión',
+  }}
+/>
+
+<Stack.Screen
+  name="Detail"
+  component={DetailScreen}
+  options={{
+    title: 'Detalle de la gafa',
+  }}
+/>
