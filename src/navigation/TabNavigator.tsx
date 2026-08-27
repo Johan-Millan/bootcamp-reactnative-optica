@@ -5,6 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 
 import { HomeStack } from './HomeStack';
 import { FavoritesScreen } from '../screens/FavoritesScreen';
+import { useSavedStore } from '../stores/savedStore';
 
 export type TabParamList = {
   Inicio: undefined;
@@ -14,12 +15,17 @@ export type TabParamList = {
 const Tab = createBottomTabNavigator<TabParamList>();
 
 export function TabNavigator(): React.JSX.Element {
+  const savedCount = useSavedStore(
+    (state) => state.savedItems.length,
+  );
+
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
         headerShown: false,
 
         tabBarActiveTintColor: '#61DAFB',
+
         tabBarInactiveTintColor: '#6B7280',
 
         tabBarIcon: ({ color, size }) => {
@@ -46,6 +52,10 @@ export function TabNavigator(): React.JSX.Element {
       <Tab.Screen
         name="Favoritos"
         component={FavoritesScreen}
+        options={{
+          tabBarBadge:
+            savedCount > 0 ? savedCount : undefined,
+        }}
       />
     </Tab.Navigator>
   );

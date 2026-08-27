@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React from 'react';
 
 import {
   FlatList,
@@ -9,47 +9,56 @@ import {
 } from 'react-native';
 
 import { ItemCard } from '../components/ItemCard';
-import { MOCK_ITEMS } from '../data/mockData';
 import { Glasses } from '../types';
 import { COLORS, SPACING, TYPOGRAPHY } from '../theme';
+import { useSavedStore } from '../stores/savedStore';
 
 export function FavoritesScreen(): React.JSX.Element {
-  const favoriteItems = MOCK_ITEMS.slice(0, 3);
+  const savedItems = useSavedStore((state) => state.savedItems);
 
-  const handleItemPress = useCallback(
-    (item: Glasses): void => {
-      console.log('Favorito:', item.name);
-    },
-    [],
-  );
+  const handleItemPress = (item: Glasses): void => {
+    console.log('Gafa guardada:', item.name);
+  };
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>
-          Mis favoritos
-        </Text>
+        <Text style={styles.title}>Mis favoritos</Text>
 
         <Text style={styles.subtitle}>
           Gafas que has guardado
         </Text>
       </View>
 
-      <FlatList
-        data={favoriteItems}
-        renderItem={({ item }) => (
-          <ItemCard
-            item={item}
-            onPress={handleItemPress}
-          />
-        )}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.list}
-        showsVerticalScrollIndicator={false}
-        ItemSeparatorComponent={() => (
-          <View style={styles.separator} />
-        )}
-      />
+      {savedItems.length === 0 ? (
+        <View style={styles.emptyContainer}>
+          <Text style={styles.emptyIcon}>🤓</Text>
+
+          <Text style={styles.emptyTitle}>
+            No tienes gafas guardadas
+          </Text>
+
+          <Text style={styles.emptyText}>
+            Ve al catálogo y guarda las gafas que más te gusten.
+          </Text>
+        </View>
+      ) : (
+        <FlatList
+          data={savedItems}
+          renderItem={({ item }) => (
+            <ItemCard
+              item={item}
+              onPress={handleItemPress}
+            />
+          )}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={styles.list}
+          showsVerticalScrollIndicator={false}
+          ItemSeparatorComponent={() => (
+            <View style={styles.separator} />
+          )}
+        />
+      )}
     </SafeAreaView>
   );
 }
@@ -84,5 +93,30 @@ const styles = StyleSheet.create({
 
   separator: {
     height: SPACING.md,
+  },
+
+  emptyContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: SPACING.xl,
+  },
+
+  emptyIcon: {
+    fontSize: 50,
+    marginBottom: SPACING.md,
+  },
+
+  emptyTitle: {
+    ...TYPOGRAPHY.subtitle,
+    color: COLORS.text,
+    textAlign: 'center',
+  },
+
+  emptyText: {
+    ...TYPOGRAPHY.body,
+    color: COLORS.textSecondary,
+    textAlign: 'center',
+    marginTop: SPACING.sm,
   },
 });
