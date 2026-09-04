@@ -1,26 +1,11 @@
 {
   "expo": {
-    "name": "bootcamp-reactnative-optica",
-    "slug": "bootcamp-reactnative-optica",
+    "name": "semana05-optica",
+    "slug": "semana05-optica",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
-    "userInterfaceStyle": "dark",
-    "splash": {
-      "image": "./assets/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#0d1117"
-    },
-    "ios": {
-      "supportsTablet": false,
-      "bundleIdentifier": "com.bootcamp.optica"
-    },
-    "android": {
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#0d1117"
-      },
-      "package": "com.bootcamp.optica"
-    }
+    "userInterfaceStyle": "light",
+    "ios": { "supportsTablet": true },
+    "android": {}
   }
 }

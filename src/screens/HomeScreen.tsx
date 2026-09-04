@@ -1,233 +1,107 @@
-import React, { useCallback, useMemo, useState } from 'react';
-
+import React from 'react';
 import {
-  FlatList,
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  SafeAreaView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  TextInput,
   View,
+  Text,
+  FlatList,
+  ActivityIndicator,
+  TouchableOpacity,
+  StyleSheet,
 } from 'react-native';
-
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-
-import { Glasses } from '../types';
-import { ItemCard } from '../components/ItemCard';
-import { MOCK_ITEMS } from '../data/mockData';
-import { HomeStackParamList } from '../navigation/HomeStack';
+import { RootStackParamList } from '../navigation/types';
+import { useItems } from '../hooks/useItems';
 import { COLORS, SPACING, TYPOGRAPHY } from '../theme';
+import { Glasses } from '../types';
 
-type HomeScreenProps = NativeStackScreenProps<
-  HomeStackParamList,
-  'Home'
->;
+type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
 
-export function HomeScreen({
-  navigation,
-}: HomeScreenProps): React.JSX.Element {
-  const [search, setSearch] = useState('');
+export default function HomeScreen({ navigation }: Props) {
+  const { data, isLoading, isError, isFetching, refetch } = useItems();
 
-  const filteredItems = useMemo(() => {
-    const searchText = search.trim().toLowerCase();
-
-    if (!searchText) {
-      return MOCK_ITEMS;
-    }
-
-    return MOCK_ITEMS.filter((item) =>
-      `${item.name} ${item.brand} ${item.category} ${item.subtitle}`
-        .toLowerCase()
-        .includes(searchText),
-    );
-  }, [search]);
-
-  const handleItemPress = useCallback(
-    (item: Glasses): void => {
-      navigation.navigate('Detail', {
-  id: item.id,
-  name: item.name,
-});
-    },
-    [navigation],
-  );
-
-  const renderItem = useCallback(
-    ({ item }: { item: Glasses }): React.JSX.Element => (
-      <ItemCard
-        item={item}
-        onPress={handleItemPress}
-      />
-    ),
-    [handleItemPress],
-  );
-
-  const renderEmpty = useCallback((): React.JSX.Element => {
+  if (isLoading) {
     return (
-      <View style={styles.emptyContainer}>
-        <Text style={styles.emptyIcon}>🔍</Text>
-
-        <Text style={styles.emptyTitle}>
-          No encontramos gafas
-        </Text>
-
-        <Text style={styles.emptyText}>
-          Intenta buscar con otro nombre, marca o categoría.
-        </Text>
+      <View style={styles.center}>
+        <ActivityIndicator size="large" color={COLORS.primary} />
       </View>
     );
-  }, []);
+  }
 
-  const renderSeparator = useCallback(
-    (): React.JSX.Element => (
-      <View style={styles.separator} />
-    ),
-    [],
-  );
+  if (isError) {
+    return (
+      <View style={styles.center}>
+        <Text style={styles.errorText}>Ocurrió un error al cargar las gafas.</Text>
+        <TouchableOpacity style={styles.retryButton} onPress={() => refetch()}>
+          <Text style={styles.retryText}>Reintentar</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <StatusBar
-        barStyle="light-content"
-        backgroundColor={COLORS.background}
+    <View style={styles.container}>
+      <FlatList
+        data={data}
+        keyExtractor={(item) => String(item.id)}
+        contentContainerStyle={{ padding: SPACING.md }}
+        refreshing={isFetching}
+        onRefresh={refetch}
+        ListEmptyComponent={
+          <View style={styles.center}>
+            <Text style={styles.emptyText}>No hay gafas registradas todavía.</Text>
+          </View>
+        }
+        renderItem={({ item }: { item: Glasses }) => (
+          <TouchableOpacity
+            style={styles.card}
+            onPress={() => navigation.navigate('Detail', { item })}
+          >
+            <Text style={styles.cardTitle}>{item.name}</Text>
+            <Text style={styles.cardSubtitle} numberOfLines={1}>
+              {item.description}
+            </Text>
+          </TouchableOpacity>
+        )}
       />
-
-      <KeyboardAvoidingView
-        style={styles.container}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      >
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>
-            Óptica Visión
-          </Text>
-
-          <Text style={styles.headerSubtitle}>
-            Catálogo de lentes y monturas
-          </Text>
-
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Buscar gafas..."
-            placeholderTextColor={COLORS.textSecondary}
-            value={search}
-            onChangeText={setSearch}
-            autoCapitalize="none"
-            autoCorrect={false}
-          />
-
-          {search.length > 0 && (
-            <Pressable
-              style={styles.clearButton}
-              onPress={() => setSearch('')}
-            >
-              <Text style={styles.clearButtonText}>
-                Limpiar búsqueda
-              </Text>
-            </Pressable>
-          )}
-        </View>
-
-        <FlatList
-          data={filteredItems}
-          renderItem={renderItem}
-          keyExtractor={(item) => item.id}
-          ItemSeparatorComponent={renderSeparator}
-          contentContainerStyle={styles.listContent}
-          showsVerticalScrollIndicator={false}
-          ListEmptyComponent={renderEmpty}
-          keyboardShouldPersistTaps="handled"
-        />
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+      <TouchableOpacity style={styles.fab} onPress={() => navigation.navigate('Create')}>
+        <Text style={styles.fabText}>+</Text>
+      </TouchableOpacity>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: COLORS.background,
-  },
-
-  container: {
-    flex: 1,
-  },
-
-  header: {
-    paddingHorizontal: SPACING.lg,
-    paddingTop: SPACING.xl,
-    paddingBottom: SPACING.md,
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
-  },
-
-  headerTitle: {
-    ...TYPOGRAPHY.title,
-    color: COLORS.text,
-  },
-
-  headerSubtitle: {
-    ...TYPOGRAPHY.subtitle,
-    color: COLORS.textSecondary,
-    marginTop: SPACING.xs,
-    marginBottom: SPACING.lg,
-  },
-
-  searchInput: {
-    height: 48,
-    backgroundColor: COLORS.surface,
+  container: { flex: 1, backgroundColor: COLORS.background },
+  center: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: SPACING.lg },
+  card: {
+    backgroundColor: COLORS.card,
+    borderRadius: 12,
+    padding: SPACING.md,
+    marginBottom: SPACING.sm,
     borderWidth: 1,
     borderColor: COLORS.border,
-    borderRadius: 10,
+  },
+  cardTitle: { ...TYPOGRAPHY.subtitle, color: COLORS.text, marginBottom: 4 },
+  cardSubtitle: { ...TYPOGRAPHY.body, color: COLORS.muted },
+  errorText: { ...TYPOGRAPHY.body, color: COLORS.error, marginBottom: SPACING.md },
+  retryButton: {
+    backgroundColor: COLORS.primary,
     paddingHorizontal: SPACING.lg,
-    color: COLORS.text,
-    fontSize: TYPOGRAPHY.body.fontSize,
+    paddingVertical: SPACING.sm,
+    borderRadius: 8,
   },
-
-  clearButton: {
-    alignSelf: 'flex-end',
-    marginTop: SPACING.sm,
-  },
-
-  clearButtonText: {
-    ...TYPOGRAPHY.small,
-    color: COLORS.primary,
-  },
-
-  listContent: {
-    padding: SPACING.lg,
-    paddingBottom: SPACING.xxl,
-  },
-
-  separator: {
-    height: SPACING.md,
-  },
-
-  emptyContainer: {
+  retryText: { color: '#fff', fontWeight: '600' },
+  emptyText: { ...TYPOGRAPHY.body, color: COLORS.muted },
+  fab: {
+    position: 'absolute',
+    right: SPACING.lg,
+    bottom: SPACING.lg,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: COLORS.primary,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: SPACING.xl,
-    paddingTop: 80,
+    elevation: 4,
   },
-
-  emptyIcon: {
-    fontSize: 40,
-    marginBottom: SPACING.md,
-  },
-
-  emptyTitle: {
-    ...TYPOGRAPHY.cardTitle,
-    color: COLORS.text,
-    textAlign: 'center',
-  },
-
-  emptyText: {
-    ...TYPOGRAPHY.body,
-    color: COLORS.textSecondary,
-    textAlign: 'center',
-    marginTop: SPACING.sm,
-    lineHeight: 20,
-  },
+  fabText: { color: '#fff', fontSize: 28, lineHeight: 28 },
 });
