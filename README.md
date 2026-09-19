@@ -1,27 +1,46 @@
-# Semana 05 — Networking y TanStack Query v5 (Dominio: Óptica)
+# Semana 06 - Óptica
 
-## Dominio
-Óptica — gestión de un catálogo de gafas (`Glasses`: id, name, description, brandId).
+Aplicación móvil de una óptica desarrollada con React Native, Expo y TypeScript.
 
-## API usada
-JSONPlaceholder (`/posts`) como proxy de API real, mapeando `title -> name`,
-`body -> description`, `userId -> brandId`.
+## Descripción
 
-## Arquitectura
-- `src/services/api.ts`: instancia de Axios con `baseURL`.
-- `src/hooks/useItems.ts`: `useQuery` para listar gafas (`queryKey: ['glasses']`).
-- `src/hooks/useCreateItem.ts`: `useMutation` para crear una gafa (POST) con
-  `invalidateQueries` en `onSuccess`.
-- `src/screens/HomeScreen.tsx`: lista (FlatList) con loading, error, empty y
-  pull-to-refresh.
-- `src/screens/DetailScreen.tsx`: detalle del ítem seleccionado.
-- `src/screens/CreateScreen.tsx`: formulario de creación.
+La aplicación permite visualizar y gestionar productos de una óptica mediante diferentes pantallas y navegación entre ellas.
 
-## Cómo ejecutar
-```bash
-npm install
-npx expo start
-```
+## Funcionalidades
 
-## Capturas
-_Agregar capturas de pantalla del simulador aquí._
+- Listado de gafas.
+- Visualización del detalle de una gafa.
+- Creación de nuevas gafas.
+- Edición de gafas.
+- Navegación entre pantallas.
+- Validación de formularios.
+- Manejo de datos mediante React Query.
+- Datos de prueba para las gafas.
+
+## Estructura del proyecto
+
+```text
+src/
+├── components/
+│   └── FormField.tsx
+├── hooks/
+│   ├── useCreateItem.ts
+│   ├── useItems.ts
+│   └── useUpdateItem.ts
+├── navigation/
+│   ├── RootNavigator.tsx
+│   └── types.ts
+├── schemas/
+│   └── glassesSchema.ts
+├── screens/
+│   ├── HomeScreen.tsx
+│   ├── DetailScreen.tsx
+│   ├── CreateScreen.tsx
+│   └── EditScreen.tsx
+├── services/
+│   ├── api.ts
+│   └── mockData.ts
+├── theme/
+│   └── index.ts
+└── types/
+    └── index.ts
