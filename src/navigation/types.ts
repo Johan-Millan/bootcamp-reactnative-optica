@@ -5,4 +5,5 @@ export type RootStackParamList = {
   Detail: { item: Glasses };
   Create: undefined;
   Edit: { id: number };
+  Settings: undefined;
 };
